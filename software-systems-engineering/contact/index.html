@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en-CA">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Discuss a Software System | SKYECON</title>
+  <meta name="description" content="Start a bounded software and systems engineering discussion with SKYECON in British Columbia.">
+  <link rel="canonical" href="https://skyecon.ca/software-systems-engineering/contact/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="SKYECON">
+  <meta property="og:title" content="Discuss a Software System | SKYECON">
+  <meta property="og:description" content="Describe the outcome, current system, constraints and evidence available. No sensitive data is required for an initial discussion.">
+  <meta property="og:url" content="https://skyecon.ca/software-systems-engineering/contact/">
+
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/redesign.css?v=20261008-no-hero-refinement">
+  <script defer src="/script.js?v=20261007-corporate"></script>
+  <script defer src="https://challenges.cloudflare.com/turnstile/v0/api.js"></script>
+</head>
+<body class="division-page software-contact-page">
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  <header class="masthead">
+    <a class="wordmark" href="/" aria-label="SKYECON home">SKYECON</a>
+    <button class="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="primary-menu" data-mobile-menu-toggle>Menu</button>
+    <nav class="primary-nav" id="primary-menu" aria-label="Primary navigation">
+      <a href="/software-systems-engineering/" aria-current="page">Software <span aria-hidden="true">&amp;</span> Systems</a>
+      <a href="/flooring/">Flooring <span aria-hidden="true">&amp;</span> Finishing</a>
+      <a href="/about/">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+    <a class="inquiry-link" href="#contact-form">Discuss a system</a>
+  </header>
+
+  <main id="main-content">
+    <nav class="breadcrumb" aria-label="Breadcrumb"><a href="/">SKYECON</a><span aria-hidden="true">/</span><a href="/software-systems-engineering/">Software &amp; Systems</a><span aria-hidden="true">/</span><span>Discuss a system</span></nav>
+
+    <section class="inquiry-hero" aria-labelledby="inquiry-title">
+      <div><p class="locator">Software &amp; Systems Engineering</p><h1 id="inquiry-title">Start with the outcome.</h1></div>
+      <div class="inquiry-intro"><p>Describe one operational problem and what must be true when it is solved. An initial discussion does not require production access, credentials, protected records or a complete procurement brief.</p><p><strong>Do not send credentials, personal information, protected records, recordings, private source code or other sensitive data through this form.</strong> If protected material is later required, SKYECON will establish an authorized handling process first.</p></div>
+    </section>
+
+    <section class="inquiry-layout" aria-labelledby="brief-title">
+      <div class="inquiry-guide">
+        <p class="kicker">A useful first brief</p>
+        <h2 id="brief-title">Enough context to define the next bounded step.</h2>
+        <ol>
+          <li><b>Outcome</b><span>What must work for users or operations?</span></li>
+          <li><b>Current state</b><span>What system or workflow exists now?</span></li>
+          <li><b>Gap</b><span>What fails, remains manual or blocks completion?</span></li>
+          <li><b>Evidence</b><span>What public or non-sensitive material can be reviewed?</span></li>
+          <li><b>Boundary</b><span>Who owns the decision, data and release authority?</span></li>
+        </ol>
+      </div>
+
+      <div class="inquiry-form-panel">
+        <div class="contact-gate" data-skyecon-contact-gate>
+          <h3>Reveal verified contact details</h3>
+          <p>Complete the human check to reveal SKYECON's phone and email and enable the prepared inquiry.</p>
+          <div class="cf-turnstile" data-callback="skyeconContactGateVerified" data-error-callback="skyeconContactGateExpired" data-expired-callback="skyeconContactGateExpired" data-sitekey="0x4AAAAAADKobA1CR6y3Igis"></div>
+          <button class="contact-gate-button" data-contact-reveal disabled type="button">Complete verification above</button>
+          <p aria-live="polite" class="contact-gate-status" data-contact-status role="status">Phone and email appear automatically after verification.</p>
+          <div class="contact-gate-output" data-contact-output hidden></div>
+        </div>
+
+        <form class="software-inquiry-form" id="contact-form">
+          <input name="project" type="hidden" value="Software / systems engineering">
+          <div class="inquiry-fields">
+            <label><strong>Name</strong><input name="name" autocomplete="name" required type="text"></label>
+            <label><strong>Organization</strong><input name="organization" autocomplete="organization" type="text"></label>
+            <label><strong>Email</strong><input name="email" autocomplete="email" required type="email"></label>
+            <label><strong>Phone</strong><input name="phone" autocomplete="tel" type="tel"></label>
+            <label class="full"><strong>Outcome required</strong><textarea name="objective" required rows="3" placeholder="What must be true when this works?"></textarea></label>
+            <label class="full"><strong>Current system or workflow</strong><textarea name="currentSystem" rows="3" placeholder="What exists now, and where does the journey break down?"></textarea></label>
+            <label><strong>Primary users</strong><input name="users" type="text" placeholder="Who performs or depends on the work?"></label>
+            <label><strong>Timing</strong><select name="timeline"><option>Exploratory</option><option>This quarter</option><option>Time-sensitive</option><option>Procurement planning</option></select></label>
+            <label class="full"><strong>Constraints and available evidence</strong><textarea name="details" required rows="5" placeholder="Non-sensitive constraints, public links, acceptance criteria, known dependencies and the authority responsible for release."></textarea></label>
+          </div>
+          <button class="solid-action form-submit" type="submit">Prepare software inquiry</button>
+          <p class="form-note">This opens your mail application with the brief prepared. Nothing is transmitted by this page before you choose to send it.</p>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p><strong>SKYECON</strong><br>Software &amp; Systems Engineering · British Columbia</p>
+    <nav aria-label="Division navigation"><a href="/">Company</a><a href="/software-systems-engineering/">Software &amp; Systems</a><a href="/flooring/">Flooring &amp; Finishing</a><a href="/about/">About</a></nav>
+    <p class="prototype-note">Unpublished prototype · © 2026 Skyecon Contracting Ltd.</p>
+  </footer>
+</body>
+</html>

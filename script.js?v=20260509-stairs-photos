@@ -1,0 +1,229 @@
+// Skyecon Site Enhancements
+// Scroll animations, typewriter reveal, smooth scroll, and direct contact helpers
+
+(() => {
+  let verifiedTurnstileToken = '';
+  let revealedContact = null;
+
+  window.skyeconContactGateVerified = function(token) {
+    verifiedTurnstileToken = token || '';
+    document.querySelectorAll('[data-skyecon-contact-gate]').forEach(gate => {
+      updateGateReady(gate);
+      if (verifiedTurnstileToken && !revealedContact && !gate.dataset.revealing) revealContact(gate);
+    });
+  };
+
+  window.skyeconContactGateExpired = function() {
+    verifiedTurnstileToken = '';
+    document.querySelectorAll('[data-skyecon-contact-gate]').forEach(gate => {
+      const button = gate.querySelector('[data-contact-reveal]');
+      const status = gate.querySelector('[data-contact-status]');
+      if (button) {
+        button.disabled = true;
+        button.textContent = 'Complete verification above';
+      }
+      if (status && !revealedContact) status.textContent = 'Verification expired. Please complete the human check again.';
+    });
+  };
+
+  function updateGateReady(gate) {
+    const button = gate.querySelector('[data-contact-reveal]');
+    const status = gate.querySelector('[data-contact-status]');
+    if (!button) return;
+    if (revealedContact) {
+      renderContact(gate, revealedContact);
+      return;
+    }
+    button.disabled = !verifiedTurnstileToken;
+    button.textContent = verifiedTurnstileToken ? 'Revealing contact…' : 'Complete verification above';
+    if (status && verifiedTurnstileToken) status.textContent = 'Verified. Revealing contact details…';
+  }
+
+  function renderContact(gate, contact) {
+    const output = gate.querySelector('[data-contact-output]');
+    const status = gate.querySelector('[data-contact-status]');
+    const button = gate.querySelector('[data-contact-reveal]');
+    if (button) button.hidden = true;
+    if (status) {
+      status.textContent = 'Verified contact details:';
+      status.classList.add('contact-gate-success');
+    }
+    if (!output) return;
+    output.hidden = false;
+    output.innerHTML = '';
+
+    const phone = document.createElement('a');
+    phone.className = 'contact-reveal-link';
+    phone.href = contact.phoneHref;
+    phone.textContent = contact.phoneDisplay;
+
+    const email = document.createElement('a');
+    email.className = 'contact-reveal-link';
+    email.href = contact.emailHref;
+    email.textContent = contact.emailDisplay;
+
+    output.append(phone, email);
+  }
+
+  async function revealContact(gate) {
+    const status = gate.querySelector('[data-contact-status]');
+    const button = gate.querySelector('[data-contact-reveal]');
+    if (!verifiedTurnstileToken) {
+      if (status) status.textContent = 'Please complete the human check first.';
+      return;
+    }
+    gate.dataset.revealing = 'true';
+    if (button) {
+      button.disabled = true;
+      button.textContent = 'Revealing contact…';
+    }
+    if (status) status.textContent = 'Checking verification…';
+
+    try {
+      const response = await fetch('/api/reveal-contact', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ token: verifiedTurnstileToken })
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || !data.ok) throw new Error(data.error || 'Could not reveal contact details.');
+      revealedContact = data;
+      document.querySelectorAll('[data-skyecon-contact-gate]').forEach(otherGate => renderContact(otherGate, data));
+    } catch (error) {
+      if (status) status.textContent = error.message || 'Verification failed. Please refresh and try again.';
+      delete gate.dataset.revealing;
+      if (button) {
+        button.disabled = !verifiedTurnstileToken;
+        button.textContent = verifiedTurnstileToken ? 'Try again' : 'Complete verification above';
+      }
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    // Reveal on scroll + typewriter per section
+    const observerOptions = {
+      root: null,
+      rootMargin: '0px 0px -40px 0px',
+      threshold: 0.15
+    };
+
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add('visible');
+
+        if (entry.target.dataset.typewriter && !entry.target.dataset.typed) {
+          typeText(entry.target);
+          entry.target.dataset.typed = 'true';
+        }
+      });
+    }, observerOptions);
+
+    document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+    // Lazy image observer
+    const imgObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          imgObserver.unobserve(entry.target);
+        }
+      });
+    }, observerOptions);
+    document.querySelectorAll('.lazy-img').forEach(el => imgObserver.observe(el));
+
+    document.querySelectorAll('[data-skyecon-contact-gate]').forEach(gate => {
+      updateGateReady(gate);
+      const button = gate.querySelector('[data-contact-reveal]');
+      if (button) button.addEventListener('click', () => revealContact(gate));
+    });
+
+    // Recruiting form handler — opens mail app with candidate details filled in.
+    const recruitingForm = document.getElementById('recruiting-form');
+    if (recruitingForm) {
+      recruitingForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const role = this.dataset.recruitingRole || 'Skyecon recruiting roster';
+        const get = (name) => this.elements[name] ? this.elements[name].value.trim() : '';
+        const body = 'Skyecon recruiting intake\n\nRole/search: ' + role +
+          '\nName: ' + get('name') +
+          '\nContact: ' + get('contact') +
+          '\nLocation/service area: ' + get('location') +
+          '\nTrade/skill: ' + (get('trade') || 'Painter') +
+          '\nAvailability: ' + get('availability') +
+          '\nExpected rate: ' + get('rate') +
+          '\nTools/vehicle/insurance/WCB/licence: ' + get('credentials') +
+          '\n\nExperience/examples/references:\n' + get('details') +
+          '\n\nConsent: Candidate submitted this information so Skyecon can contact them about possible work opportunities. No work was promised by the form.';
+        const subject = 'Skyecon recruiting intake — ' + role + ' — ' + (get('name') || get('location') || 'candidate');
+        window.location.href = 'mailto:skyecon.projects@gmail.com?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+      });
+    }
+
+    // Contact form handler — opens mail app only after contact details have been verified
+    const contactForm = document.getElementById('contact-form');
+    if (contactForm) {
+      contactForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const status = document.querySelector('[data-contact-status]');
+        if (!revealedContact || !revealedContact.emailHref) {
+          const gate = document.querySelector('[data-skyecon-contact-gate]');
+          if (gate) gate.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          if (status) status.textContent = 'Please complete the human check and reveal the quote email before sending the form.';
+          return;
+        }
+        const contactForEmail = revealedContact;
+        if (status) status.textContent = 'Opening your mail app with the project details filled in.';
+        const name = this.name.value.trim();
+        const phone = this.phone.value.trim();
+        const email = this.email ? this.email.value.trim() : '';
+        const location = this.location ? this.location.value.trim() : '';
+        const sqft = this.sqft ? this.sqft.value.trim() : '';
+        const timeline = this.timeline ? this.timeline.value : '';
+        const material = this.material ? this.material.value : '';
+        const project = this.project.value;
+        const details = this.details ? this.details.value.trim() : '';
+        const photoCount = this.photos && this.photos.files ? this.photos.files.length : 0;
+        const body = 'New Skyecon inquiry\n\nName: ' + name + '\nPhone: ' + phone + '\nEmail: ' + email + '\nCity/address: ' + location + '\nSquare footage: ' + sqft + '\nTimeline: ' + timeline + '\nMaterial purchased?: ' + material + '\nProject type: ' + project + '\nPhotos selected: ' + photoCount + ' (photos optional, but helpful)\n\nDetails:\n' + details;
+        const subject = 'Skyecon project inquiry — ' + (location || project || 'new lead');
+        const separator = contactForEmail.emailHref.includes('?') ? '&' : '?';
+        window.location.href = contactForEmail.emailHref + separator + 'subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+      });
+    }
+
+    // Typewriter effect — one word at a time, fast cadence (~90 wpm)
+    function typeText(container) {
+      const original = container.dataset.fulltext || container.textContent.trim();
+      container.dataset.fulltext = original;
+
+      const words = original.split(/\s+/).filter(Boolean);
+      let i = 0;
+
+      container.innerHTML = '<span class="typewriter-done"></span>';
+      const output = container.querySelector('.typewriter-done');
+
+      function typeStep() {
+        if (i < words.length) {
+          if (i > 0) output.textContent += ' ';
+          output.textContent += words[i];
+          i++;
+
+          if (i >= words.length) return;
+
+          const wordLen = words[i].length;
+          const delay = wordLen < 5 ? 40 + Math.random() * 20 : 55 + Math.random() * 25;
+          setTimeout(typeStep, delay);
+        }
+      }
+      setTimeout(typeStep, 60);
+    }
+
+    // Header scroll shadow
+    window.addEventListener('scroll', () => {
+      const header = document.querySelector('.site-header');
+      if (!header) return;
+      if (window.scrollY > 30) header.classList.add('scrolled');
+      else header.classList.remove('scrolled');
+    });
+  });
+})();
